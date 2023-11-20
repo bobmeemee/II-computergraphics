@@ -25,18 +25,21 @@ obj_list = ObjectList()
 lightList = LightList()
 
 # Create a light
-light = Light(Point(0, 0, 4), np.array([100, 100, 101]))
+light = Light(Point(0, 0, 3), np.array([255, 255, 255]))
 lightList.addLight(light)
 
 
 # Create a sphere
 sphere = Cube()
 # sphere.scale(1, 2, 2)
+sphere.rotate(45, 0, 1, 0)
+sphere.rotate(30, 1, 0, 0)
+
 sphere.translate(0, 0, -6)
 # black plastic
-sphere.material.diffuse = np.array([0.00, 0.00, 0.00])
-sphere.material.specular = np.array([0.4, 0.4, 0.01])
-sphere.material.specularExponent = 32
+sphere.material.diffuse = np.array([0.01, 0.01, 0.01])
+sphere.material.specular = np.array([0.8, 0.8, 0.8])
+sphere.material.specularExponent = 1
 # Add the sphere to the list of objects
 obj_list.addObject(sphere)
 
@@ -83,10 +86,6 @@ def main():
 
     pygame.quit()
     sys.exit()
-
-
-
-
 
 
 if __name__ == "__main__":

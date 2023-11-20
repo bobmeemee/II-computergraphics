@@ -92,7 +92,6 @@ class Camera:
         obj = h.object
         color = np.array([0., 0., 0.])
         color += obj.material.emissive
-        print("obj material emissive: ", obj.material.emissive)
         normal = h.normal
         normal.normalize()  # vector
         for light in LightList.getInstance().getLights():
@@ -112,7 +111,7 @@ class Camera:
                     phong = np.power(mDotH, obj.material.specularExponent)
                     specularColor = phong * obj.material.specular * light.color
                     color += specularColor
-        print(color)
+                print(color)
 
         # if one of the color components is greater than 255, set it to 255
         for i in range(3):

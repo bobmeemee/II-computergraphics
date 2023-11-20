@@ -25,18 +25,18 @@ obj_list = ObjectList()
 lightList = LightList()
 
 # Create a light
-light = Light(Point(0, 0.1, 2), np.array([2, 2, 2]))
+light = Light(Point(0, 0, 4), np.array([100, 100, 101]))
 lightList.addLight(light)
 
 
 # Create a sphere
-sphere = Sphere()
+sphere = Cube()
 # sphere.scale(1, 2, 2)
-sphere.translate(-2, -2, -6)
+sphere.translate(0, 0, -6)
 # black plastic
 sphere.material.diffuse = np.array([0.00, 0.00, 0.00])
-sphere.material.specular = np.array([0.1, 0.1, 0.3])
-sphere.material.specularExponent = 10
+sphere.material.specular = np.array([0.4, 0.4, 0.01])
+sphere.material.specularExponent = 32
 # Add the sphere to the list of objects
 obj_list.addObject(sphere)
 
@@ -46,16 +46,6 @@ clock = pygame.time.Clock()
 # Initialize variables
 render_progress = 0
 image = None
-
-
-def render_next_chunk(render_progress_x: int, render_progress_y, x_blocksize: int, y_blocksize: int):
-    """Render the next chunk of the image"""
-    # append the next chunk of the image to the list of rects to update
-    rect = pygame.Rect(render_progress_x * x_blocksize, render_progress_y * y_blocksize, x_blocksize, y_blocksize)
-    color = (255, 0, 0)
-
-    # return the rect as an image
-    return rect, color
 
 
 def main():

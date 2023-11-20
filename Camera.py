@@ -74,8 +74,8 @@ class Camera:
                 ray.setDirection(x_dir, y_dir, self.farDist)
                 clr = self.shade(ray)
                 """
-        x_dir = -screen_width + 2 * x
-        y_dir = -screen_height + 2 * y
+        x_dir = screen_width + 2 * -x
+        y_dir = screen_height + 2 * -y
         self.ray.setDirection(x_dir, y_dir, self.farDist)
         clr = self.shade(self.ray)
         return clr
@@ -90,16 +90,18 @@ class Camera:
         hitPoint = h.intersectionPoint
         v = ray.vector * -1
         obj = h.object
-        color = obj.material.emissive
+        color = np.array([0., 0., 0.])
+        color += obj.material.emissive
+        print("obj material emissive: ", obj.material.emissive)
         normal = h.normal
         normal.normalize()  # vector
         for light in LightList.getInstance().getLights():
             # TODO: if light in shadow, don't add diffuse and specular
             s = light.position - hitPoint  # vector
-            print("s: ", s)
             s.normalize()
             mDotS = s.dot(normal)  # point * vector = scalar
             if mDotS > 0:  # if the light is in front of the object
+                print("surface: ", h.surface)
                 # TODO: diffuse is the same for one surface, this has potential for optimization
                 diffuseColor = mDotS * obj.material.diffuse * light.color  # scalar *color * color = color
                 color += diffuseColor  # color + color = color
@@ -110,6 +112,7 @@ class Camera:
                     phong = np.power(mDotH, obj.material.specularExponent)
                     specularColor = phong * obj.material.specular * light.color
                     color += specularColor
+        print(color)
 
         # if one of the color components is greater than 255, set it to 255
         for i in range(3):

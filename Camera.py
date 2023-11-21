@@ -175,8 +175,17 @@ class Camera:
 
         domega = 200  # honestly, I don't know what value this should be
 
+        # shading ray
+        epsilon = 0.002
+        hitPoint_shade = hitPoint - ray.vector * epsilon
+        feeler = Line(Vector(0, 0, 0), hitPoint_shade)
+        feeler.recuseLevel = 1
+
         for light in LightList.getInstance().getLights():
-            if isInShadow(light, hitPoint, obj):
+            feeler.setDirection(light.point.x - hitPoint.x, light.point.y - hitPoint.y, light.point.z - hitPoint.z)
+            feeler.vector.normalize()
+
+            if isInShadow(feeler):
                 print("in shadow")
                 continue
 

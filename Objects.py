@@ -136,9 +136,6 @@ class Sphere(Object):
                                        np.array([line.vector.x, line.vector.y, line.vector.z, 0]))
         transformedLinePoint = np.dot(self.inverseTransform, np.array([line.point.x, line.point.y, line.point.z, 1]))
 
-        #  l = Line.Line(Line.Vector(transformedLineVector[0], transformedLineVector[1], transformedLineVector[2]),
-        #                Line.Point(transformedLinePoint[0], transformedLinePoint[1], transformedLinePoint[2]))
-
         # calculate the intersection point
         a = transformedLineVector[0] ** 2 + transformedLineVector[1] ** 2 + transformedLineVector[2] ** 2
         b = (transformedLineVector[0] * transformedLinePoint[0] + transformedLineVector[1] * transformedLinePoint[1]
@@ -176,7 +173,8 @@ class Sphere(Object):
             info = HitInfo(isEntering=False, obj=self, surface=0, time=t1, intersectionPoint=intersectionPoint2,
                            normal=normal)
             inter.hit.append(info)
-
+        if inter.numberOfHits == 0:
+            return False, None
         return True, inter
 
     def getNormal(self, point: Line.Point):
@@ -269,6 +267,8 @@ class GenericSquare(Object):
                        normal=self.normal)
         inter.hit.append(info)
 
+        if inter.numberOfHits == 0:
+            return False, None
         return True, inter
 
 
@@ -398,6 +398,8 @@ class Cube(Object):
             inter.hit.append(HitInfo(isEntering=False, obj=self, surface=outSurface, time=tOut,
                                      intersectionPoint=r.getPosition(tOut), normal=hitNormal))
 
+        if inter.numberOfHits == 0:
+            return False, None
         return True, inter
 
     def getTransform(self):
@@ -455,21 +457,16 @@ class LightList:
         return self.lights
 
 
-def isInShadow(light: Light, point: Line.Point, o):
-    # create a ray from the light to the object
-    ray = Line.Line(point - light.point, light.point)
-
-    # check if the ray hits anything
-    isHit = False
+def isInShadow(feeler: Line):
     for obj in ObjectList.getInstance().getObjects():
-        if obj == o:  # don't check if the ray hits the object itself
-            continue
-        isHit, inter = obj.hit(ray)
-        if isHit and inter.getFirst().object != obj:  # if the ray hits something that is not the object itself
-            break
-        else:
-            isHit = False
+        isHit, inter = obj.hit(feeler)
+        if isHit:
+            if inter.hit[0].time > 0.00001:
+                return True
+    return False
 
-    return isHit
+
+
+
 
 

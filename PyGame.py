@@ -11,7 +11,7 @@ pygame.init()
 
 # Set up display
 width, height = 800, 600
-blocksize = 3
+blocksize = 1
 x_blocksize = width // blocksize
 y_blocksize = height // blocksize
 
@@ -31,7 +31,7 @@ lightList.addLight(light)
 
 # Create a sphere
 sphere = Sphere()
-sphere.scale(0.4, 0.4, 0.4)
+sphere.scale(0.2, 0.2, 0.2)
 sphere.translate(0, 0, -6)
 # black plastic
 sphere.material.eta = np.array([.800, .876, .989])  # BGR

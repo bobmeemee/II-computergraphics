@@ -73,6 +73,9 @@ class Point:
     def __add__(self, v):
         return Point(self.x + v.x, self.y + v.y, self.z + v.z)
 
+    def __mul__(self, s):
+        return Point(self.x * s, self.y * s, self.z * s)
+
     # define print method
     def __str__(self):
         return f'({self.x}, {self.y}, {self.z})'
@@ -157,6 +160,7 @@ class Line:
     def __init__(self, v: Vector, p: Point):
         self.vector = v
         self.point = p
+        self.recuseLevel = 0
 
     def setDirection(self, x, y, z):
         self.vector = Vector(x, y, z)

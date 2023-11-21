@@ -455,17 +455,20 @@ class LightList:
         return self.lights
 
 
-def isInShadow(light: Light, point: Line.Point):
+def isInShadow(light: Light, point: Line.Point, o):
     # create a ray from the light to the object
     ray = Line.Line(point - light.point, light.point)
-    print(ray)
 
     # check if the ray hits anything
     isHit = False
     for obj in ObjectList.getInstance().getObjects():
+        if obj == o:  # don't check if the ray hits the object itself
+            continue
         isHit, inter = obj.hit(ray)
-        if isHit:
+        if isHit and inter.getFirst().object != obj:  # if the ray hits something that is not the object itself
             break
+        else:
+            isHit = False
 
     return isHit
 

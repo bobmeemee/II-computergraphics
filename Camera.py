@@ -2,7 +2,7 @@ import numpy as np
 import sys as sys
 import ctypes
 
-from Objects import ObjectList, Intersection, GenericSquare, Sphere, Cube, Object, LightList
+from Objects import ObjectList, Intersection, GenericSquare, Sphere, Cube, Object, LightList, isInShadow
 
 '''
 from Objects import Intersection, ObjectList
@@ -176,9 +176,11 @@ class Camera:
         domega = 200  # honestly, I don't know what value this should be
 
         for light in LightList.getInstance().getLights():
-            # TODO: if light in shadow, don't add diffuse and specular
+            if isInShadow(light, hitPoint, obj):
+                print("in shadow")
+                continue
 
-            s = light.position - hitPoint  # vector
+            s = light.point - hitPoint  # vector
             s.normalize()
             lambert = s.dot(normal)  # lambert term
             if lambert > 0:  # if the light is in front of the object
@@ -196,7 +198,7 @@ class Camera:
                     spec = utils.specular_value(thetha_in, thetha_out, obj.material.m, obj.material.eta)
                     specular = light.color * obj.material.ks * spec * domega
                     color += specular
-                    print("color: ", color)
+                    # print("color: ", color)
 
         # if one of the color components is greater than 255, set it to 255
         for i in range(3):

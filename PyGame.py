@@ -11,7 +11,7 @@ pygame.init()
 
 # Set up display
 width, height = 800, 600
-blocksize = 1
+blocksize = 3
 x_blocksize = width // blocksize
 y_blocksize = height // blocksize
 
@@ -25,32 +25,37 @@ obj_list = ObjectList()
 lightList = LightList()
 
 # Create a light
-light = Light(Point(-1, -1, 3), np.array([100, 100, 100]))
+light = Light(Point(-1, -1, 5), np.array([100, 100, 100]))
 lightList.addLight(light)
 
 
 # Create a sphere
-sphere = Cube()
-sphere.rotate(45, 0, 1, 0)
-sphere.rotate(45, 1, 0, 0)
-
-sphere.translate(1, 1, -6)
+sphere = Sphere()
+sphere.scale(0.4, 0.4, 0.4)
+sphere.translate(0, 0, -6)
 # black plastic
-sphere.material.ambient = np.array([0.0, 0.0, 0.0])
-sphere.material.diffuse = np.array([0.01, 0.01, 0.01])
-sphere.material.specular = np.array([0.8, 0.8, 0.8])
-sphere.material.specularExponent = 1
-
-# gold
-
 sphere.material.eta = np.array([.800, .876, .989])  # BGR
 sphere.material.ka = 0.1
 sphere.material.kd = 0.6
 sphere.material.ks = 0.4
 sphere.material.m = 0.3
 
+
+# Create a cube
+cube = Cube()
+cube.scale(4, 4, 1)
+cube.translate(0, 0, -10)
+# gold
+cube.material.eta = np.array([.800, .876, .989])  # BGR
+cube.material.ka = 0.1
+cube.material.kd = 0.6
+cube.material.ks = 0.4
+cube.material.m = 0.3
+
 # Add the sphere to the list of objects
 obj_list.addObject(sphere)
+
+obj_list.addObject(cube)
 
 # Create a clock object to control the frame rate
 clock = pygame.time.Clock()

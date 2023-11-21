@@ -11,7 +11,7 @@ from Objects import Sphere, Light, isInShadow, ObjectList, LightList
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     obj = Sphere()
-    obj.translate(0, 0, -6)
+    obj.translate(0, 2, -6)
     objlist = ObjectList()
     objlist.addObject(obj)
     point = Point(0, 0, -10)

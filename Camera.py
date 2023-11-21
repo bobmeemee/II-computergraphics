@@ -100,17 +100,71 @@ class Camera:
             s.normalize()
             mDotS = s.dot(normal)  # point * vector = scalar
             if mDotS > 0:  # if the light is in front of the object
-                print("surface: ", h.surface)
                 # TODO: diffuse is the same for one surface, this has potential for optimization
                 diffuseColor = mDotS * obj.material.diffuse * light.color  # scalar *color * color = color
                 color += diffuseColor  # color + color = color
-                h = s + v  # vector
-                h.normalize()
-                mDotH = h.dot(normal)  # scalar
+                half = s + v  # vector
+                half.normalize()
+                mDotH = half.dot(normal)  # scalar
                 if mDotH > 0:
                     phong = np.power(mDotH, obj.material.specularExponent)
                     specularColor = phong * obj.material.specular * light.color
                     color += specularColor
+                print(color)
+
+        # if one of the color components is greater than 255, set it to 255
+        for i in range(3):
+            if color[i] > 255:
+                color[i] = 255
+        return color
+
+
+    def shadeNew(self, ray: Line):
+        """Shade the ray
+        """
+        bestIntersection = self.getFistHit(ray)
+        if bestIntersection.numberOfHits == 0:
+            return np.array([0, 0, 0])
+        h = bestIntersection.hit[0]
+        hitPoint = h.intersectionPoint
+        v = ray.vector * -1
+        obj = h.object
+
+        color = np.array([0., 0., 0.])
+        color += obj.material.emissive
+
+        ambient = np.array([0.1, 0.1, 0.1]) * obj.material.ka * utils.fresnelZero(obj.material.eta)
+        color += ambient
+
+        normal = h.normal
+        normal.normalize()  # vector
+
+        for light in LightList.getInstance().getLights():
+            # TODO: if light in shadow, don't add diffuse and specular
+            s = light.position - hitPoint  # vector
+            s.normalize()
+            lambert = s.dot(normal)  # lambert term
+            if lambert > 0:  # if the light is in front of the object
+                diffuse = light. color * 0.0001  * obj.material.kd * utils.fresnelZero(obj.material.eta) * lambert
+                color += diffuse
+
+                half = s + v  # half vector
+                half.normalize()
+                mDotV = normal.dot(v)  # denominator of the geometric term
+                if mDotV > 0:
+                    phi = np.arccos(half.dot(normal))
+                    phi.normalize()
+                    theta = np.arccos(s.dot(normal))
+                    theta.normalize()
+                    delta = (phi - theta) / 2
+                    D = utils.Beckmann63Distribution(delta, obj.material.m)
+                    F = utils.fresnel(phi, obj.material.eta)
+                    Gm = utils.Gm(obj.material.m, half, s)
+                    Gs = utils.Gs(obj.material.m, half, s, v)
+                    G = min(1, Gm, Gs)
+                    geometric = G * F * D / mDotV
+                    specular = light.color * obj.material.ks * 0.0001 * geometric
+                    color += specular
                 print(color)
 
         # if one of the color components is greater than 255, set it to 255

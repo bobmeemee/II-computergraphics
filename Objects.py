@@ -62,6 +62,21 @@ class Material:
         self.diffuse = np.array([0, 0, 0])
         self.specular = np.array([0.9, 0.9, 0.9])
         self.specularExponent = 40  # shininess 1-200
+        self.eta = np.array([1., 1., 1.])
+        self.ka = 0.5
+        self.kd = 0.5
+        self.ks = 0.5
+
+    def setKd(self, kd):
+        self.kd = kd
+        self.ks = 1 - kd
+
+    def setKs(self, ks):
+        self.ks = ks
+        self.kd = 1 - ks
+
+    def setEta(self, eta):
+        self.eta = eta
 
     def setEmissive(self, emissive):
         self.emissive = emissive

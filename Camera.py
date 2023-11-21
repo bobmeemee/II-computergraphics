@@ -77,7 +77,7 @@ class Camera:
         x_dir = screen_width + 2 * -x
         y_dir = screen_height + 2 * -y
         self.ray.setDirection(x_dir, y_dir, self.farDist)
-        clr = self.shade(self.ray)
+        clr = self.shadeCookTorrance(self.ray)
         return clr
 
     def shade(self, ray: Line):
@@ -118,7 +118,6 @@ class Camera:
                 color[i] = 255
         return color
 
-
     def shadeNew(self, ray: Line):
         """Shade the ray
         """
@@ -145,7 +144,7 @@ class Camera:
             s.normalize()
             lambert = s.dot(normal)  # lambert term
             if lambert > 0:  # if the light is in front of the object
-                diffuse = light. color * 0.0001  * obj.material.kd * utils.fresnelZero(obj.material.eta) * lambert
+                diffuse = light.color * 0.0001 * obj.material.kd * utils.fresnelZero(obj.material.eta) * lambert
                 color += diffuse
 
                 half = s + v  # half vector
@@ -153,19 +152,64 @@ class Camera:
                 mDotV = normal.dot(v)  # denominator of the geometric term
                 if mDotV > 0:
                     phi = np.arccos(half.dot(normal))
-                    phi.normalize()
                     theta = np.arccos(s.dot(normal))
-                    theta.normalize()
                     delta = (phi - theta) / 2
                     D = utils.Beckmann63Distribution(delta, obj.material.m)
                     F = utils.fresnel(phi, obj.material.eta)
-                    Gm = utils.Gm(obj.material.m, half, s)
-                    Gs = utils.Gs(obj.material.m, half, s, v)
+                    Gm = utils.Gm(normal, half, s)
+                    Gs = utils.Gs(normal, half, s, v)
                     G = min(1, Gm, Gs)
                     geometric = G * F * D / mDotV
                     specular = light.color * obj.material.ks * 0.0001 * geometric
                     color += specular
                 print(color)
+
+        # if one of the color components is greater than 255, set it to 255
+        for i in range(3):
+            if color[i] > 255:
+                color[i] = 255
+        return color
+
+    def shadeCookTorrance(self, ray: Line):
+        bestIntersection = self.getFistHit(ray)
+        if bestIntersection.numberOfHits == 0:
+            return np.array([0, 0, 0])
+        h = bestIntersection.hit[0]
+        hitPoint = h.intersectionPoint
+        v = ray.vector * -1
+        obj = h.object
+
+        color = np.array([0., 0., 0.])
+        color += obj.material.emissive
+
+        ambient = np.array([0.1, 0.1, 0.1]) * obj.material.ka * utils.fresnelZero(obj.material.eta)
+        color += ambient
+
+        normal = h.normal
+        normal.normalize()  # vector
+
+        domega = 300  # honestly, I don't know what value this should be
+
+        for light in LightList.getInstance().getLights():
+            # TODO: if light in shadow, don't add diffuse and specular
+            s = light.position - hitPoint  # vector
+            s.normalize()
+            lambert = s.dot(normal)  # lambert term
+            if lambert > 0:  # if the light is in front of the object
+                diffuse = light.color * domega * obj.material.kd * utils.fresnelZero(obj.material.eta) * lambert
+                color += diffuse
+
+                half = s + v  # half vector
+                half.normalize()
+                mDotV = normal.dot(v)  # denominator of the geometric term
+                if mDotV > 0:
+                    thetha_in = np.arccos(s.dot(normal))  # phi
+                    v.normalize()
+                    thetha_out = np.arccos(v.dot(normal))  # theta
+                    spec = utils.specular_value(thetha_in, thetha_out, obj.material.m, obj.material.eta)
+                    specular = light.color * obj.material.ks * spec * domega
+                    color += specular
+                    print("color: ", color)
 
         # if one of the color components is greater than 255, set it to 255
         for i in range(3):

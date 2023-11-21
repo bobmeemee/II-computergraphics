@@ -66,6 +66,7 @@ class Material:
         self.ka = 0.5
         self.kd = 0.5
         self.ks = 0.5
+        self.m = 0.1  # roughness
 
     def setKd(self, kd):
         self.kd = kd

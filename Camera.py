@@ -60,20 +60,6 @@ class Camera:
         self.v = -sn * t + cs * self.v
 
     def raytrace(self, screen_width: int, screen_height: int, x: int, y: int):
-        """Raytrace the scene
-
-        ray = Line(Vector(0, 0, 0), self.eye)
-        ray.setOrigin(0, 0, 0)
-        nCols = screen_width / blocksize
-        nRows = screen_height / blocksize
-        for x in range(0, screen_width, blocksize):
-            for y in range(0, screen_height, blocksize):
-                x_dir = -screen_width + 2*x
-                y_dir = -screen_height + 2*y
-                print(x_dir, y_dir)
-                ray.setDirection(x_dir, y_dir, self.farDist)
-                clr = self.shade(ray)
-                """
         x_dir = screen_width + 2 * -x
         y_dir = screen_height + 2 * -y
         self.ray.setDirection(x_dir, y_dir, self.farDist)
@@ -139,7 +125,6 @@ class Camera:
         normal.normalize()  # vector
 
         for light in LightList.getInstance().getLights():
-            # TODO: if light in shadow, don't add diffuse and specular
             s = light.position - hitPoint  # vector
             s.normalize()
             lambert = s.dot(normal)  # lambert term
@@ -182,20 +167,22 @@ class Camera:
         color = np.array([0., 0., 0.])
         color += obj.material.emissive
 
-        ambient = np.array([0.1, 0.1, 0.1]) * obj.material.ka * utils.fresnelZero(obj.material.eta)
+        ambient = np.array([0.01, 0.01, 0.01]) * obj.material.ka * utils.fresnelZero(obj.material.eta)
         color += ambient
 
         normal = h.normal
         normal.normalize()  # vector
 
-        domega = 300  # honestly, I don't know what value this should be
+        domega = 200  # honestly, I don't know what value this should be
 
         for light in LightList.getInstance().getLights():
             # TODO: if light in shadow, don't add diffuse and specular
+
             s = light.position - hitPoint  # vector
             s.normalize()
             lambert = s.dot(normal)  # lambert term
             if lambert > 0:  # if the light is in front of the object
+                # TODO: reflection & refraction onto other objects
                 diffuse = light.color * domega * obj.material.kd * utils.fresnelZero(obj.material.eta) * lambert
                 color += diffuse
 
@@ -225,7 +212,6 @@ class Camera:
 
         for obj in ObjectList.getInstance().getObjects():
             isHit, inter = obj.hit(ray)
-            # TODO: fix the hit return value
             if isHit:
                 if bestIntersection.numberOfHits == 0 or inter.hit[0].time < bestIntersection.hit[0].time:
                     bestIntersection.hit = inter.hit

@@ -41,18 +41,18 @@ class HitInfo:
 
 class Light:
     def __init__(self, position: Line.Point, color: np.array):
-        self.position = position
+        self.point = position
         self.color = color
 
     def getPosition(self):
-        return self.position
+        return self.point
 
     def getColor(self):
         return self.color
 
     # print method
     def __str__(self):
-        return f'({self.position}, {self.color})'
+        return f'({self.point}, {self.color})'
 
 
 class Material:
@@ -453,3 +453,20 @@ class LightList:
 
     def getLights(self):
         return self.lights
+
+
+def isInShadow(light: Light, point: Line.Point):
+    # create a ray from the light to the object
+    ray = Line.Line(point - light.point, light.point)
+    print(ray)
+
+    # check if the ray hits anything
+    isHit = False
+    for obj in ObjectList.getInstance().getObjects():
+        isHit, inter = obj.hit(ray)
+        if isHit:
+            break
+
+    return isHit
+
+

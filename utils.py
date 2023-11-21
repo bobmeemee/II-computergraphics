@@ -67,7 +67,7 @@ def geometry_attenuation(theta_i, theta_r, theta_h):
 
     G1 = 2 * cos_theta_h * cos_theta_i / np.maximum(cos_theta_i, cos_theta_r)
     G2 = 2 * cos_theta_h * cos_theta_r / cos_theta_i
-    return np.minimum(1, G1) * G2
+    return np.minimum(np.minimum(1, G1), G2)
 
 
 def specular_value(theta_i, theta_r, k, F0):

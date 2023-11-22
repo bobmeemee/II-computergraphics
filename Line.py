@@ -161,6 +161,7 @@ class Line:
         self.vector = v
         self.point = p
         self.recuseLevel = 0
+        self.objects = []
 
     def setDirection(self, x, y, z):
         self.vector = Vector(x, y, z)

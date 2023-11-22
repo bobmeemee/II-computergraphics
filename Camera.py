@@ -161,45 +161,50 @@ class Camera:
             return np.array([0, 0, 0])
         h = bestIntersection.hit[0]
         hitPoint = h.intersectionPoint
-        v = ray.vector * -1
+        ray.vector.normalize()
+        v = ray.vector * -1  # viewer vector
         obj = h.object
 
+        # emissive component
         color = np.array([0., 0., 0.])
         color += obj.material.emissive
 
+        # ambient component
         ambient = np.array([0.01, 0.01, 0.01]) * obj.material.ka * utils.fresnelZero(obj.material.eta)
         color += ambient
 
         normal = h.normal
-        normal.normalize()  # vector
+        normal.normalize()
 
         domega = 200  # honestly, I don't know what value this should be
 
-        # shading ray
+        # create a ray to find the shadows
         epsilon = 0.002
         hitPoint_shade = hitPoint - ray.vector * epsilon
         feeler = Line(Vector(0, 0, 0), hitPoint_shade)
         feeler.recuseLevel = 1
 
         for light in LightList.getInstance().getLights():
+
+            # if the light is in shadow, skip it
             feeler.setDirection(light.point.x - hitPoint.x, light.point.y - hitPoint.y, light.point.z - hitPoint.z)
             feeler.vector.normalize()
-
             if isInShadow(feeler):
-                print("in shadow")
                 continue
 
-            s = light.point - hitPoint  # vector
+            s = light.point - hitPoint  # vector to light source
             s.normalize()
+
+            # diffuse component
             lambert = s.dot(normal)  # lambert term
             if lambert > 0:  # if the light is in front of the object
-                # TODO: reflection & refraction onto other objects
                 diffuse = light.color * domega * obj.material.kd * utils.fresnelZero(obj.material.eta) * lambert
                 color += diffuse
 
-                half = s + v  # half vector
+                # specular component
+                half = s + v  # half vector between viewer and light source
                 half.normalize()
-                mDotV = normal.dot(v)  # denominator of the geometric term
+                mDotV = normal.dot(v)  # check if the viewer is in front of the object
                 if mDotV > 0:
                     thetha_in = np.arccos(s.dot(normal))  # phi
                     v.normalize()
@@ -208,6 +213,34 @@ class Camera:
                     specular = light.color * obj.material.ks * spec * domega
                     color += specular
                     # print("color: ", color)
+
+            # if the ray has been recused too many times, skip the reflection & refraction
+            if ray.recuseLevel > 3:
+                continue
+
+            # TODO: reflection & refraction from other objects
+            # reflection component
+            if obj.material.shininess > 0.51:
+                # create a ray to find the reflection
+                reflection = Line(Vector(0, 0, 0), hitPoint)
+                reflection.vector = ray.vector - 2 * normal * ray.vector.dot(normal) * normal
+                reflection.vector.normalize()
+                reflection.recuseLevel = ray.recuseLevel + 1
+                color += self.shadeCookTorrance(reflection) * obj.shininess
+
+            # refraction component
+            if obj.material.transparency > 0.51:
+                # create a ray to find the refraction
+                transparancy = Line(Vector(0, 0, 0), hitPoint)
+                transparancy.objects.append(obj)
+                if ray.recuseLevel == 0:
+                    c1 = 1
+                else:
+                    c1 = ray.objects[0].material.relativeLightspeed
+                transparancy.vector = utils.calculate_transparency_vector(ray.vector, normal, c1,
+                                                                          obj.material.relativeLightspeed)
+                transparancy.recuseLevel = ray.recuseLevel + 1
+                color += self.shadeCookTorrance(transparancy) * obj.transparency
 
         # if one of the color components is greater than 255, set it to 255
         for i in range(3):
@@ -224,6 +257,7 @@ class Camera:
         for obj in ObjectList.getInstance().getObjects():
             isHit, inter = obj.hit(ray)
             if isHit:
+                # if there is no hit yet or the current hit is closer than the previous hit
                 if bestIntersection.numberOfHits == 0 or inter.hit[0].time < bestIntersection.hit[0].time:
                     bestIntersection.hit = inter.hit
                     bestIntersection.numberOfHits = inter.numberOfHits

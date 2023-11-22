@@ -61,12 +61,16 @@ class Material:
         self.ambient = np.array([0, 0, 0])
         self.diffuse = np.array([0, 0, 0])
         self.specular = np.array([0.9, 0.9, 0.9])
-        self.specularExponent = 40  # shininess 1-200
+        self.specularExponent = 40  # shininess 1-200 for phong
         self.eta = np.array([1., 1., 1.])
         self.ka = 0.5
         self.kd = 0.5
         self.ks = 0.5
         self.m = 0.1  # roughness
+
+        self.shininess = 0.5
+        self.transparency = 0.5
+        self.relativeLightspeed = 1.0
 
     def setKd(self, kd):
         self.kd = kd

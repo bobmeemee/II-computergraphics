@@ -231,16 +231,33 @@ class Camera:
             # refraction component
             if obj.material.transparency > 0.51:
                 # create a ray to find the refraction
-                transparancy = Line(Vector(0, 0, 0), hitPoint)
-                transparancy.objects.append(obj)
-                if ray.recuseLevel == 0:
-                    c1 = 1
+                transparancyRay = Line(Vector(0, 0, 0), hitPoint)
+                if h.isEntering:
+                    if ray.recuseLevel == 0:  # the first object it enters
+                        c1 = 1
+                        c2 = obj.material.relativeLightspeed
+                    else:
+                        highestPriorityObject = utils.getHighestPriorityObject(ray.objects)
+                        c1 = highestPriorityObject.material.relativeLightspeed
+                        if obj.priority > highestPriorityObject.priority:  # if the new object has a higher priority,
+                            # use it for c2
+                            c2 = obj.material.relativeLightspeed
+                        else:
+                            c2 = highestPriorityObject.material.relativeLightspeed
+                    # copy the objects from the previous ray in the new ray
+                    transparancyRay.objects = ray.objects.copy()
+                    # add the current object to the new ray
+                    transparancyRay.objects.append(obj)
                 else:
-                    c1 = ray.objects[0].material.relativeLightspeed
-                transparancy.vector = utils.calculate_transparency_vector(ray.vector, normal, c1,
-                                                                          obj.material.relativeLightspeed)
-                transparancy.recuseLevel = ray.recuseLevel + 1
-                color += self.shadeCookTorrance(transparancy) * obj.transparency
+                    c1 = utils.getHigestPriorityLightSpeed(ray.objects)
+                    ray.objects.remove(obj)
+                    c2 = utils.getHigestPriorityLightSpeed(ray.objects)
+                    transparancyRay.objects = ray.objects.copy()
+
+                # calculate the new direction of the ray
+                transparancyRay.vector = utils.calculate_transparency_vector(ray.vector, normal, c1, c2)
+                transparancyRay.recuseLevel = ray.recuseLevel + 1
+                color += self.shadeCookTorrance(transparancyRay) * obj.transparency
 
         # if one of the color components is greater than 255, set it to 255
         for i in range(3):

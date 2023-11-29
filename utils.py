@@ -87,3 +87,23 @@ def calculate_transparency_vector(direction, normal, c1, c2):
     t = c2 / c1 * direction + (c2 / c1 * (normal.dot(direction)) - np.cos(thetha_out)) * normal
     # TODO: if t is negative, then the ray is reflected not refracted
     return t
+
+
+def getHigestPriorityLightSpeed(objects: list):
+    currentPriority = 0
+    c = 1  # assume air if there are no objects
+    for obj in objects:
+        if obj.priority > currentPriority:
+            currentPriority = obj.priority
+            c = obj.material.relativeLightspeed
+    return c
+
+
+def getHighestPriorityObject(objects: list):
+    currentPriority = 0
+    obj = None
+    for o in objects:
+        if o.priority > currentPriority:
+            currentPriority = o.priority
+            obj = o
+    return obj

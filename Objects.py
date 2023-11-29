@@ -105,6 +105,7 @@ class Sphere(Object):
         self.inverseTransform = np.identity(4)
         self.radius = (1, 1, 1)
         self.material = Material()
+        self.priority = 0
 
     def setMaterial(self, material):
         self.material = material
@@ -206,6 +207,8 @@ class GenericSquare(Object):
         self.normal = Line.Vector(0, 0, 1)
         self.material = Material()
 
+        self.priority = 0
+
     def scale(self, sx, sy):
         self.size_x *= sx
         self.size_y *= sy
@@ -303,6 +306,8 @@ class Cube(Object):
         self.size_z = 1
 
         self.material = Material()
+
+        self.priority = 0
 
     def scale(self, sx, sy, sz):
         self.size_x *= sx

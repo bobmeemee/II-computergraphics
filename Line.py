@@ -137,8 +137,11 @@ class Vector:
                       self.z * v.x - self.x * v.z,
                       self.x * v.y - self.y * v.x)
 
-    # define scalar multiplication
+    # define scalar multiplication in the form v * s
     def __mul__(self, s):
+        return Vector(self.x * s, self.y * s, self.z * s)
+
+    def __rmul__(self, s):
         return Vector(self.x * s, self.y * s, self.z * s)
 
     # define subtraction

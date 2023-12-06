@@ -159,6 +159,8 @@ class Camera:
         bestIntersection = self.getFistHit(ray)
         if bestIntersection.numberOfHits == 0:
             return np.array([0, 0, 0])
+        if ray.recuseLevel == 1 and bestIntersection.numberOfHits == 1:
+            print("recursed hit object", bestIntersection.hit[0].object)
         h = bestIntersection.hit[0]
         hitPoint = h.intersectionPoint
         ray.vector.normalize()
@@ -170,7 +172,7 @@ class Camera:
         color += obj.material.emissive
 
         # ambient component
-        ambient = np.array([0.01, 0.01, 0.01]) * obj.material.ka * utils.fresnelZero(obj.material.eta)
+        ambient = np.array([255., 255.0, 255.0]) * obj.material.ka * utils.fresnelZero(obj.material.eta)
         color += ambient
 
         normal = h.normal
@@ -189,6 +191,7 @@ class Camera:
             # if the light is in shadow, skip it
             feeler.setDirection(light.point.x - hitPoint.x, light.point.y - hitPoint.y, light.point.z - hitPoint.z)
             feeler.vector.normalize()
+            # TODO: if blocking objects are transparent, don't skip it
             if isInShadow(feeler):
                 continue
 
@@ -215,28 +218,31 @@ class Camera:
                     # print("color: ", color)
 
             # if the ray has been recused too many times, skip the reflection & refraction
-            if ray.recuseLevel > 3:
+            if ray.recuseLevel == 3:
                 continue
 
-            # TODO: reflection & refraction from other objects
+            # TODO: refraction from other objects
             # reflection component
             if obj.material.shininess > 0.51:
                 # create a ray to find the reflection
                 reflection = Line(Vector(0, 0, 0), hitPoint)
-                reflection.vector = ray.vector - 2 * normal * ray.vector.dot(normal) * normal
+                r = 2 * ray.vector.dot(normal)
+                reflection.vector = ray.vector - normal * r
                 reflection.vector.normalize()
                 reflection.recuseLevel = ray.recuseLevel + 1
-                color += self.shadeCookTorrance(reflection) * obj.shininess
+                color += self.shadeCookTorrance(reflection) * obj.material.shininess
 
             # refraction component
             if obj.material.transparency > 0.51:
                 # create a ray to find the refraction
+                # move the hitpoint a little bit to prevent the ray from hitting the same object again
+
                 transparancyRay = Line(Vector(0, 0, 0), hitPoint)
                 if h.isEntering:
                     if ray.recuseLevel == 0:  # the first object it enters
                         c1 = 1
                         c2 = obj.material.relativeLightspeed
-                    else:
+                    elif len(ray.objects) != 0:
                         highestPriorityObject = utils.getHighestPriorityObject(ray.objects)
                         c1 = highestPriorityObject.material.relativeLightspeed
                         if obj.priority > highestPriorityObject.priority:  # if the new object has a higher priority,
@@ -253,11 +259,10 @@ class Camera:
                     ray.objects.remove(obj)
                     c2 = utils.getHigestPriorityLightSpeed(ray.objects)
                     transparancyRay.objects = ray.objects.copy()
-
                 # calculate the new direction of the ray
                 transparancyRay.vector = utils.calculate_transparency_vector(ray.vector, normal, c1, c2)
                 transparancyRay.recuseLevel = ray.recuseLevel + 1
-                color += self.shadeCookTorrance(transparancyRay) * obj.transparency
+                color += self.shadeCookTorrance(transparancyRay) * obj.material.transparency
 
         # if one of the color components is greater than 255, set it to 255
         for i in range(3):

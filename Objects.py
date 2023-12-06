@@ -257,14 +257,12 @@ class GenericSquare(Object):
         # calculate the intersection time
         t = -transformedPoint[2] / transformedLine[2]
         if t <= 0:
-            print("Error: Intersection time is less than 0")
             return False, None
         hx = transformedPoint[0] + t * transformedLine[0]
         hy = transformedPoint[1] + t * transformedLine[1]
 
         # Check if the hit point is within the square boundaries
         if not (-self.size_x <= hx <= self.size_x and -self.size_y <= hy <= self.size_y):
-            print("Error: Hit point is not within the square boundaries")
             return False, None
 
         inter = Intersection()
@@ -473,9 +471,3 @@ def isInShadow(feeler: Line):
             if inter.hit[0].time > 0.00001:
                 return True
     return False
-
-
-
-
-
-

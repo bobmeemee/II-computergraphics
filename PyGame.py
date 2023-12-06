@@ -11,7 +11,7 @@ pygame.init()
 
 # Set up display
 width, height = 800, 600
-blocksize = 1
+blocksize = 4
 x_blocksize = width // blocksize
 y_blocksize = height // blocksize
 
@@ -24,38 +24,68 @@ camera.set(eye=Point(0, 0, 0), look=Point(0, 0, -1), up=Vector(0, 1, 0))
 obj_list = ObjectList()
 lightList = LightList()
 
-# Create a light
-light = Light(Point(-1, -1, 5), np.array([100, 100, 100]))
-lightList.addLight(light)
+# Create lights
+light_1 = Light(Point(0, 0, 4), np.array([100, 100, 100]))
+lightList.addLight(light_1)
+light_2 = Light(Point(2, 2, -1.5), np.array([255, 255, 255]))
+lightList.addLight(light_2)
 
 
 # Create a sphere
-sphere = Sphere()
-sphere.scale(0.2, 0.2, 0.2)
-sphere.translate(0, 0, -6)
-# black plastic
+sphere = Cube()
+sphere.scale(0.5, 0.5, 0.5)
+sphere.rotate(45, 1, 0, 0)
+sphere.rotate(45, 0, 1, 0)
+sphere.translate(0, 0, -5)
+
+sphere.material.emissive = np.array([100., 100, 100]) * 1
 sphere.material.eta = np.array([.800, .876, .989])  # BGR
-sphere.material.ka = 0.1
-sphere.material.kd = 0.6
-sphere.material.ks = 0.4
-sphere.material.m = 0.3
+sphere.material.ka = 0.5  # ambient
+sphere.material.kd = 0.4  # diffuse
+sphere.material.ks = 0.4  # specular
+sphere.material.m = 0.3  # roughness
+
+sphere.material.shininess = 0.01  # reflection
+sphere.material.transparency = 0.01  # refraction
+
+# create a transparent square
+square = GenericSquare()
+square.translate(0, 0, -2)
+square.priority = 1
+
+square.material.emissive = np.array([100., 100, 100]) * 0
+square.material.eta = np.array([.4, .876, .4])  # BGR
+square.material.ka = 0.1  # ambient
+square.material.kd = 0.2  # diffuse
+square.material.ks = 0.1  # specular
+square.material.m = 0.01  # roughness CANT BE 0
+
+square.material.shininess = 0.01  # reflection
+
+square.material.transparency = .99  # refraction
+square.material.relativeLightspeed = 0.8
+
 
 
 # Create a cube
 cube = Cube()
-cube.scale(4, 4, 1)
-cube.translate(0, 0, -10)
-# gold
+cube.translate(0, 0, 0)
+
+cube.material.emissive = np.array([100., 100, 100]) * 0.1
 cube.material.eta = np.array([.800, .876, .989])  # BGR
-cube.material.ka = 0.1
-cube.material.kd = 0.6
-cube.material.ks = 0.4
-cube.material.m = 0.3
+cube.material.ka = 0.1  # ambient
+cube.material.kd = 0.2  # diffuse
+cube.material.ks = 0.2  # specular
+cube.material.m = 0.3  # roughness
 
-# Add the sphere to the list of objects
+cube.material.shininess = 0  # reflection
+cube.material.transparency = 0.0  # refraction
+
+
+# Add the objects to the list of objects
 obj_list.addObject(sphere)
-
-obj_list.addObject(cube)
+# obj_list.addObject(cube)
+obj_list.addObject(square)
 
 # Create a clock object to control the frame rate
 clock = pygame.time.Clock()

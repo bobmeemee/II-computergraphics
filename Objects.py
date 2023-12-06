@@ -268,7 +268,7 @@ class GenericSquare(Object):
         inter = Intersection()
         inter.numberOfHits = 1
 
-        info = HitInfo(isEntering=True, obj=self, surface=0, time=t, intersectionPoint=Line.Point(hx, hy, 0),
+        info = HitInfo(isEntering=True, obj=self, surface=0, time=t, intersectionPoint=line.getPosition(t),
                        normal=self.normal)
         inter.hit.append(info)
 

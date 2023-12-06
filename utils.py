@@ -82,9 +82,8 @@ def specular_value(theta_i, theta_r, k, F0):
 
 
 def calculate_transparency_vector(direction, normal, c1, c2):
-    thetha_out = np.sqrt(1 - (c2 / c1) ** 2 * (1 - (normal.dot(direction)) ** 2))
-    t = direction * (c2 / c1) + (normal.dot(direction) * c2 / c1 - np.cos(thetha_out)) * normal
-    # TODO: if t is negative, then the ray is reflected not refracted
+    cos_thetha_out = np.sqrt(1 - ((c2 / c1) ** 2) * (1 - normal.dot(direction) ** 2))
+    t = direction * (c2 / c1) + (normal.dot(direction) * c2 / c1 - cos_thetha_out) * normal
     return t
 
 

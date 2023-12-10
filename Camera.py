@@ -193,9 +193,8 @@ class Camera:
             feeler.setDirection(light.point.x - hitPoint.x, light.point.y - hitPoint.y, light.point.z - hitPoint.z)
             feeler.vector.normalize()
             # TODO: if blocking objects are transparent, don't skip it
-            # if isInShadow(feeler):
-            #     print("in shadow")
-            #     continue
+            if isInShadow(feeler):
+                continue
 
             s = light.point - hitPoint  # vector to light source
             s.normalize()
@@ -217,11 +216,11 @@ class Camera:
                     spec = utils.specular_value(thetha_in, thetha_out, obj.material.m, obj.material.eta)
                     specular = light.color * obj.material.ks * spec * domega
                     color += specular
-                    if ray.recuseLevel == 1:
-                        print("recursed color: ", color)
+                    # if ray.recuseLevel == 1:
+                    #     print("recursed color: ", color)
 
             # if the ray has been recused too many times, skip the reflection & refraction
-        if ray.recuseLevel == 2:
+        if ray.recuseLevel == 3:
             return color
         # TODO: refraction from other objects
         # reflection component

@@ -24,51 +24,6 @@ camera.set(eye=Point(0, 0, 0), look=Point(0, 0, -1), up=Vector(0, 1, 0))
 obj_list = ObjectList()
 lightList = LightList()
 
-# Create lights
-light_1 = Light(Point(0, 0, 3), np.array([100, 100, 100]) *2.5)
-#lightList.addLight(light_1)
-light_2 = Light(Point(2, 0, 1), np.array([255, 255, 255]))
-lightList.addLight(light_2)
-
-
-# Create a sphere
-sphere = Sphere()
-sphere.scale(0.3, 0.3, 0.3)
-sphere.translate(0, 0, -3)
-
-sphere.material.emissive = np.array([100., 100, 100]) * 0
-sphere.material.eta = np.array([.800, .876, .989])  # BGR
-sphere.material.ka = 0.5  # ambient
-sphere.material.kd = 0.4  # diffuse
-sphere.material.ks = 0.9  # specular
-sphere.material.m = 0.3  # roughness
-
-sphere.material.shininess = 0.9 # reflection
-sphere.material.transparency = 0.01  # refraction
-
-# create a cube and place yourself inside
-cube = Cube()
-cube.scale(8, 8, 8)
-cube.translate(0, 0, -1)
-cube.priority = 1
-
-cube.material.emissive = np.array([100., 100, 100]) * 0
-cube.material.eta = np.array([.8, .1, .1])  # BGR
-cube.material.ka = 0.4  # ambient
-cube.material.kd = 0.4  # diffuse
-cube.material.ks = 0.4  # specular
-cube.material.m = 0.3  # roughness CANT BE 0
-
-cube.material.shininess = 0.1  # reflection
-
-cube.material.transparency = 0  # refraction
-cube.material.relativeLightspeed = 1
-
-
-# Add the objects to the list of objects
-obj_list.addObject(sphere)
-obj_list.addObject(cube)
-
 # Create a clock object to control the frame rate
 clock = pygame.time.Clock()
 
@@ -78,6 +33,7 @@ image = None
 
 
 def main():
+    test_reflection()
     update_color = None
     update_rect = None
     render_progress = 0
@@ -116,42 +72,53 @@ def main():
 
 # This routine only works when the shadows are turned off
 def test_reflection():
-    light_2 = Light(Point(2, 0, 1), np.array([255, 255, 255]))
+    # Create lights
+    light_1 = Light(Point(0, 0, 1), np.array([100, 100, 100]) * .0)
+    lightList.addLight(light_1)
+    light_2 = Light(Point(3, 0, -3), np.array([255, 255, 255]) * .0)
     lightList.addLight(light_2)
+    light_3 = Light(Point(0, -2, -3), np.array([255, 255, 255]) * .2)
+    lightList.addLight(light_3)
 
     # Create a sphere
-    sphere = Sphere()
+    sphere = Cube()
     sphere.scale(0.3, 0.3, 0.3)
+    sphere.rotate(45, 1, 0, 0)
+    sphere.rotate(45, 0, 1, 0)
     sphere.translate(0, 0, -3)
 
     sphere.material.emissive = np.array([100., 100, 100]) * 0
-    sphere.material.eta = np.array([.800, .876, .989])  # BGR
+    sphere.material.eta = np.array([.800, .2, .989])  # BGR
     sphere.material.ka = 0.5  # ambient
     sphere.material.kd = 0.4  # diffuse
-    sphere.material.ks = 0.9  # specular
+    sphere.material.ks = 0.4  # specular
     sphere.material.m = 0.3  # roughness
 
-    sphere.material.shininess = 0.9  # reflection
+    sphere.material.shininess = 0.1  # reflection
     sphere.material.transparency = 0.01  # refraction
 
     # create a cube and place yourself inside
-    cube = Cube()
-    cube.scale(8, 8, 8)
-    cube.translate(0, 0, -1)
+    cube = GenericSquare()
+    cube.scale(2, 2)
+    cube.translate(0, .2, -4)
+    cube.rotate(30, 1, 0, 0)
     cube.priority = 1
 
     cube.material.emissive = np.array([100., 100, 100]) * 0
-    cube.material.eta = np.array([.8, .1, .1])  # BGR
-    cube.material.ka = 0.4  # ambient
-    cube.material.kd = 0.4  # diffuse
-    cube.material.ks = 0.4  # specular
-    cube.material.m = 0.3  # roughness CANT BE 0
+    cube.material.eta = np.array([.8, .8, .8])  # BGR
+    cube.material.ka = 0.05  # ambient
+    cube.material.kd = 0.1  # diffuse
+    cube.material.ks = 0.1  # specular
+    cube.material.m = 0.01  # roughness CANT BE 0
 
-    cube.material.shininess = 0.1  # reflection
+    cube.material.shininess = 1.  # reflection
 
     cube.material.transparency = 0  # refraction
     cube.material.relativeLightspeed = 1
 
+    # Add the objects to the list of objects
+    obj_list.addObject(sphere)
+    obj_list.addObject(cube)
 
 
 def test_transparency():
@@ -195,7 +162,6 @@ def test_transparency():
 
     square.material.transparency = 1  # refraction
     square.material.relativeLightspeed = 1
-
 
 
 if __name__ == "__main__":

@@ -277,23 +277,6 @@ class GenericSquare(Object):
         return True, inter
 
 
-def getCubeNormal(surface):
-    if surface == 0:  # top
-        return np.array([0, 1, 0])
-    elif surface == 1:  # bottom
-        return np.array([0, -1, 0])
-    elif surface == 2:  # right
-        return np.array([1, 0, 0])
-    elif surface == 3:  # left
-        return np.array([-1, 0, 0])
-    elif surface == 4:  # front
-        return np.array([0, 0, 1])
-    elif surface == 5:  # back
-        return np.array([0, 0, -1])
-    else:
-        print("Error: Invalid case, no hit normal for this surface")
-
-
 class Cube(Object):
     def __init__(self):
         self.transform = np.identity(4)
@@ -391,7 +374,7 @@ class Cube(Object):
         inter = Intersection()
         if tIn > 0.00001:
             inter.numberOfHits += 1
-            hitNormal = utils.vectorFromArray(getCubeNormal(inSurface))
+            hitNormal = utils.vectorFromArray(self.getCubeNormal(inSurface))
             hitNormal.transform(self.transform)
             inter.hit.append(
                 HitInfo(isEntering=True, obj=self, surface=inSurface, time=tIn, intersectionPoint=r.getPosition(tIn),
@@ -399,7 +382,7 @@ class Cube(Object):
 
         if tOut > 0.00001:
             inter.numberOfHits += 1
-            hitNormal = utils.vectorFromArray(getCubeNormal(outSurface))
+            hitNormal = utils.vectorFromArray(self.getCubeNormal(outSurface))
             hitNormal.transform(self.transform)
 
             inter.hit.append(HitInfo(isEntering=False, obj=self, surface=outSurface, time=tOut,
@@ -414,6 +397,23 @@ class Cube(Object):
 
     def getInverseTransform(self):
         return self.inverseTransform
+
+    @staticmethod
+    def getCubeNormal(surface):
+        if surface == 0:  # top
+            return np.array([0, 1, 0])
+        elif surface == 1:  # bottom
+            return np.array([0, -1, 0])
+        elif surface == 2:  # right
+            return np.array([1, 0, 0])
+        elif surface == 3:  # left
+            return np.array([-1, 0, 0])
+        elif surface == 4:  # front
+            return np.array([0, 0, 1])
+        elif surface == 5:  # back
+            return np.array([0, 0, -1])
+        else:
+            print("Error: Invalid case, no hit normal for this surface")
 
 
 # singleton class that stores all the objects

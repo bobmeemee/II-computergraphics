@@ -167,6 +167,8 @@ class Sphere(Object):
             inter.numberOfHits += 1
             intersectionPoint2 = line.getPosition(t2)
             normal = self.getNormal(intersectionPoint2)
+            # mirror the normal if the ray is exiting the sphere
+            normal *= -1
             """
             intersectionPoint2 = np.dot(self.transform,
                                         np.array([transformedLinePoint[0] + t2 * transformedLineVector[0],
@@ -383,6 +385,7 @@ class Cube(Object):
         if tOut > 0.00001:
             inter.numberOfHits += 1
             hitNormal = utils.vectorFromArray(self.getCubeNormal(outSurface))
+            hitNormal *= -1
             hitNormal.transform(self.transform)
 
             inter.hit.append(HitInfo(isEntering=False, obj=self, surface=outSurface, time=tOut,
@@ -413,8 +416,7 @@ class Cube(Object):
         elif surface == 5:  # back
             return np.array([0, 0, -1])
         else:
-            print("Error: Invalid case, no hit normal for this surface")
-
+            print("Error: Invalid case, no hit normal for this surface ", surface)
 
 # singleton class that stores all the objects
 class ObjectList:

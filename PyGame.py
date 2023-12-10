@@ -33,7 +33,7 @@ image = None
 
 
 def main():
-    test_reflection()
+    test_transparency()
     update_color = None
     update_rect = None
     render_progress = 0
@@ -126,42 +126,49 @@ def test_transparency():
     light_1 = Light(Point(0, 0, 4), np.array([100, 100, 100]))
     lightList.addLight(light_1)
     light_2 = Light(Point(2, 2, -3), np.array([255, 255, 255]))
-    lightList.addLight(light_2)
+    #lightList.addLight(light_2)
 
     # Create a sphere
-    sphere = Cube()
-    sphere.scale(0.5, 0.5, 0.5)
-    sphere.rotate(45, 1, 0, 0)
-    sphere.rotate(45, 0, 1, 0)
-    sphere.translate(0, 0, -5)
+    sphere = Sphere()
+    sphere.scale(0.5, 0.8, 0.5)
+    sphere.translate(0, 0, -3)
 
-    sphere.material.emissive = np.array([100., 100, 100]) * 1
+    sphere.material.emissive = np.array([100., 100, 100]) * 0
     sphere.material.eta = np.array([.800, .876, .989])  # BGR
-    sphere.material.ka = 0.5  # ambient
-    sphere.material.kd = 0.4  # diffuse
-    sphere.material.ks = 0.4  # specular
-    sphere.material.m = 0.3  # roughness
+    sphere.material.ka = 0.1  # ambient
+    sphere.material.kd = 0.2  # diffuse
+    sphere.material.ks = 0.1  # specular
+    sphere.material.m = 0.1  # roughness
 
     sphere.material.shininess = 0.01  # reflection
-    sphere.material.transparency = 0.01  # refraction
+
+    sphere.material.transparency = 1  # refraction
+    sphere.material.relativeLightspeed = .9
+    sphere.priority = 1
 
     # create a transparent square
-    square = GenericSquare()
-    square.scale(0.5, 0.5)
-    square.translate(0, 0, -2)
-    square.priority = 1
+    square = Cube()
+    square.scale(1, 1, 1)
+    square.rotate(45, 1, 0, 0)
+    square.rotate(45, 0, 1, 0)
+    square.translate(0, 0, -9)
+    square.priority = 0
 
     square.material.emissive = np.array([100., 100, 100]) * 0
-    square.material.eta = np.array([.99, .99, .99])  # BGR
-    square.material.ka = 0.1  # ambient
+    square.material.eta = np.array([.6, .5, .3])  # BGR
+    square.material.ka = 0.2  # ambient
     square.material.kd = 0.2  # diffuse
-    square.material.ks = 0.0  # specular
+    square.material.ks = 0.4  # specular
     square.material.m = 0.01  # roughness CANT BE 0
 
     square.material.shininess = 0.01  # reflection
 
-    square.material.transparency = 1  # refraction
+    square.material.transparency = 0  # refraction
     square.material.relativeLightspeed = 1
+
+    # Add the objects to the list of objects
+    obj_list.addObject(sphere)
+    obj_list.addObject(square)
 
 
 if __name__ == "__main__":

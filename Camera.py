@@ -26,7 +26,7 @@ class Camera:
 
         self.viewAngle = 45
         self.aspect = 1
-        self.nearDist = 1
+        self.nearDist = -1
         self.farDist = -1000
 
         self.ray = Line(Vector(0, 0, 0), self.eye)
@@ -159,9 +159,6 @@ class Camera:
         bestIntersection = self.getFistHit(ray)
         if bestIntersection.numberOfHits == 0:
             return np.array([0, 0, 0])
-        # if ray.recuseLevel == 1 and bestIntersection.numberOfHits == 1:
-        #     print("recursed hit object", bestIntersection.hit[0].object)
-        #     print("isEntering" if bestIntersection.hit[0].isEntering else "isExiting")
         h = bestIntersection.hit[0]
         hitPoint = h.intersectionPoint
         ray.vector.normalize()
@@ -185,7 +182,6 @@ class Camera:
         epsilon = 0.002
         hitPoint_shade = hitPoint - ray.vector * epsilon
         feeler = Line(Vector(0, 0, 0), hitPoint_shade)
-        feeler.recuseLevel = 1
 
         for light in LightList.getInstance().getLights():
 
@@ -193,8 +189,8 @@ class Camera:
             feeler.setDirection(light.point.x - hitPoint.x, light.point.y - hitPoint.y, light.point.z - hitPoint.z)
             feeler.vector.normalize()
             # TODO: if blocking objects are transparent, don't skip it
-            # if isInShadow(feeler):
-            #     continue
+            #if isInShadow(feeler):
+            #    continue
 
             s = light.point - hitPoint  # vector to light source
             s.normalize()
@@ -222,11 +218,13 @@ class Camera:
         # if the ray has been recused too many times, skip the reflection & refraction
         if ray.recuseLevel == 5:
             return color
-        # TODO: refraction from other objects
+
         # reflection component
         if obj.material.shininess > 0.51:
             # create a ray to find the reflection
-            reflection = Line(Vector(0, 0, 0), hitPoint)
+            epsilon = 0.00001
+            hitPoint_reflection = hitPoint - ray.vector * epsilon
+            reflection = Line(Vector(0, 0, 0), hitPoint_reflection)
             r = 2 * ray.vector.dot(normal)
             reflection.vector = ray.vector - normal * r
             reflection.vector.normalize()

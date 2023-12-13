@@ -67,11 +67,17 @@ class Point:
 
     # define subtraction
     def __sub__(self, p):
-        return Vector(self.x - p.x, self.y - p.y, self.z - p.z)
+        if p.type == 0:
+            return Point(self.x - p.x, self.y - p.y, self.z - p.z)
+        else:
+            return Vector(self.x - p.x, self.y - p.y, self.z - p.z)
 
     # define addition
     def __add__(self, v):
-        return Point(self.x + v.x, self.y + v.y, self.z + v.z)
+        if v.type == 0:
+            return Point(self.x + v.x, self.y + v.y, self.z + v.z)
+        else:
+            return Vector(self.x + v.x, self.y + v.y, self.z + v.z)
 
     def __mul__(self, s):
         return Point(self.x * s, self.y * s, self.z * s)

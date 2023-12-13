@@ -33,7 +33,9 @@ image = None
 
 
 def main():
-    test_transparency()
+    #test_transparency()
+    #test_reflection()
+    test_reflection_inCube()
     update_color = None
     update_rect = None
     render_progress = 0
@@ -77,44 +79,93 @@ def test_reflection():
     lightList.addLight(light_1)
     light_2 = Light(Point(3, 0, -3), np.array([255, 255, 255]) * .0)
     lightList.addLight(light_2)
-    light_3 = Light(Point(0, -2, -3), np.array([255, 255, 255]) * .2)
+    light_3 = Light(Point(0, -2, -3), np.array([255, 255, 255]) * .3)
     lightList.addLight(light_3)
 
-    # Create a sphere
-    sphere = Cube()
-    sphere.scale(0.3, 0.3, 0.3)
-    sphere.rotate(45, 1, 0, 0)
-    sphere.rotate(45, 0, 1, 0)
-    sphere.translate(0, 0, -3)
-
-    sphere.material.emissive = np.array([100., 100, 100]) * 0
-    sphere.material.eta = np.array([.800, .2, .989])  # BGR
-    sphere.material.ka = 0.5  # ambient
-    sphere.material.kd = 0.4  # diffuse
-    sphere.material.ks = 0.4  # specular
-    sphere.material.m = 0.3  # roughness
-
-    sphere.material.shininess = 0.1  # reflection
-    sphere.material.transparency = 0.01  # refraction
-
-    # create a cube and place yourself inside
-    cube = GenericSquare()
-    cube.scale(2, 2)
-    cube.translate(0, .2, -4)
-    cube.rotate(30, 1, 0, 0)
-    cube.priority = 1
+    # Create a cube
+    cube = Cube()
+    cube.scale(0.3, 0.3, 0.3)
+    cube.rotate(45, 1, 0, 0)
+    cube.rotate(45, 0, 1, 0)
+    cube.translate(0, 0, -3)
 
     cube.material.emissive = np.array([100., 100, 100]) * 0
-    cube.material.eta = np.array([.8, .8, .8])  # BGR
-    cube.material.ka = 0.05  # ambient
-    cube.material.kd = 0.1  # diffuse
-    cube.material.ks = 0.1  # specular
-    cube.material.m = 0.01  # roughness CANT BE 0
+    cube.material.eta = np.array([.800, .2, .989])  # BGR
+    cube.material.ka = 0.5  # ambient
+    cube.material.kd = 0.3  # diffuse
+    cube.material.ks = 0.4  # specular
+    cube.material.m = 0.3  # roughness
 
-    cube.material.shininess = 1.  # reflection
-
-    cube.material.transparency = 0  # refraction
+    cube.material.shininess = 0  # reflection
+    cube.material.transparency = 0.0  # refraction
     cube.material.relativeLightspeed = 1
+
+    # create a cube and place yourself inside
+    square = GenericSquare()
+    square.scale(2, 2)
+    square.translate(0, .2, -4)
+    square.rotate(30, 1, 0, 0)
+    square.priority = 1
+
+    square.material.emissive = np.array([100., 100, 100]) * 0
+    square.material.eta = np.array([.8, .8, .8])  # BGR
+    square.material.ka = 0.2  # ambient
+    square.material.kd = 0.4  # diffuse
+    square.material.ks = 0.2  # specular
+    square.material.m = 0.1  # roughness CANT BE 0
+
+    square.material.shininess = 1.  # reflection
+
+    square.material.transparency = 0  # refraction
+    square.material.relativeLightspeed = 1
+
+    # Add the objects to the list of objects
+    obj_list.addObject(square)
+    obj_list.addObject(cube)
+
+
+def test_reflection_inCube():
+    # Create lights
+    light_1 = Light(Point(0, 0, 1), np.array([100, 100, 100]) * .8)
+    lightList.addLight(light_1)
+    light_2 = Light(Point(3, 0, -3), np.array([255, 255, 255]) * .0)
+    lightList.addLight(light_2)
+    light_3 = Light(Point(0, -2, -3), np.array([255, 255, 255]) * .0)
+    lightList.addLight(light_3)
+
+    # Create a cube
+    cube = Cube()
+    cube.scale(5, 5, 5)
+    cube.translate(0, 0, 0)
+
+    cube.material.emissive = np.array([100., 100, 100]) * 0
+    cube.material.eta = np.array([.4, .4, .4])  # BGR
+    cube.material.ka = 0.2  # ambient
+    cube.material.kd = 0.3  # diffuse
+    cube.material.ks = 0.4  # specular
+    cube.material.m = 0.3  # roughness
+
+    cube.material.shininess = 1  # reflection
+    cube.material.transparency = 0.0  # refraction
+    cube.material.relativeLightspeed = 1
+
+    # create a cube and place yourself inside
+    sphere = Sphere()
+    sphere.scale(0.5, 0.5, 0.5)
+    sphere.translate(0, 0, -3)
+    sphere.priority = 1
+
+    sphere.material.emissive = np.array([100., 100, 100]) * 0
+    sphere.material.eta = np.array([.8, .8, .8])  # BGR
+    sphere.material.ka = 0.2  # ambient
+    sphere.material.kd = 0.4  # diffuse
+    sphere.material.ks = 0.6  # specular
+    sphere.material.m = 0.1  # roughness CANT BE 0
+
+    sphere.material.shininess = 0.  # reflection
+
+    sphere.material.transparency = 0  # refraction
+    sphere.material.relativeLightspeed = 1
 
     # Add the objects to the list of objects
     obj_list.addObject(sphere)
@@ -147,28 +198,28 @@ def test_transparency():
     sphere.priority = 1
 
     # create a transparent square
-    square = Cube()
-    square.scale(1, 1, 1)
-    square.rotate(45, 1, 0, 0)
-    square.rotate(45, 0, 1, 0)
-    square.translate(0, 0, -9)
-    square.priority = 0
+    cube = Cube()
+    cube.scale(1, 1, 1)
+    cube.rotate(45, 1, 0, 0)
+    cube.rotate(45, 0, 1, 0)
+    cube.translate(0, 0, -9)
+    cube.priority = 0
 
-    square.material.emissive = np.array([100., 100, 100]) * 0
-    square.material.eta = np.array([.6, .5, .3])  # BGR
-    square.material.ka = 0.2  # ambient
-    square.material.kd = 0.2  # diffuse
-    square.material.ks = 0.4  # specular
-    square.material.m = 0.01  # roughness CANT BE 0
+    cube.material.emissive = np.array([100., 100, 100]) * 0
+    cube.material.eta = np.array([.6, .5, .3])  # BGR
+    cube.material.ka = 0.2  # ambient
+    cube.material.kd = 0.2  # diffuse
+    cube.material.ks = 0.4  # specular
+    cube.material.m = 0.01  # roughness CANT BE 0
 
-    square.material.shininess = 0.01  # reflection
+    cube.material.shininess = 0.01  # reflection
 
-    square.material.transparency = 0  # refraction
-    square.material.relativeLightspeed = 1
+    cube.material.transparency = 0  # refraction
+    cube.material.relativeLightspeed = 1
 
     # Add the objects to the list of objects
     obj_list.addObject(sphere)
-    obj_list.addObject(square)
+    obj_list.addObject(cube)
 
 
 if __name__ == "__main__":

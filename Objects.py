@@ -134,6 +134,10 @@ class Sphere(Object):
                                                                         [0, 0, 1, -tz],
                                                                         [0, 0, 0, 1]]))
 
+    def rotate(self, angle, ux, uy, uz):
+        pass
+
+
     # returns the intersection point and the color of the object
     def hit(self, line: Line):
         # transform the line
@@ -206,7 +210,6 @@ class GenericSquare(Object):
 
         self.size_x = 1
         self.size_y = 1
-        self.normal = Line.Vector(0, 0, 1)
         self.material = Material()
 
         self.priority = 0
@@ -236,8 +239,6 @@ class GenericSquare(Object):
              [ux * uy * (1 - c) + uz * s, c + uy ** 2 * (1 - c), uz * uy * (1 - c) - ux * s, 0],
              [ux * uz * (1 - c) - uy * s, uy * uz * (1 - c) + ux * s, c + uz ** 2 * (1 - c), 0],
              [0, 0, 0, 1]]), self.transform)
-
-        self.normal.transform(self.transform)
 
         self.inverseTransform = np.dot(self.inverseTransform, np.array(
             [[c + ux ** 2 * (1 - c), uy * ux * (1 - c) + uz * s, uz * ux * (1 - c) - uy * s, 0],
@@ -269,9 +270,11 @@ class GenericSquare(Object):
 
         inter = Intersection()
         inter.numberOfHits = 1
+        normal = Line.Vector(0, 0, 1)
+        normal.transform(self.transform)
 
         info = HitInfo(isEntering=True, obj=self, surface=0, time=t, intersectionPoint=line.getPosition(t),
-                       normal=self.normal)
+                       normal=normal)
         inter.hit.append(info)
 
         if inter.numberOfHits == 0:
@@ -385,7 +388,7 @@ class Cube(Object):
         if tOut > 0.00001:
             inter.numberOfHits += 1
             hitNormal = utils.vectorFromArray(self.getCubeNormal(outSurface))
-            hitNormal *= -1
+            #hitNormal *= -1
             hitNormal.transform(self.transform)
 
             inter.hit.append(HitInfo(isEntering=False, obj=self, surface=outSurface, time=tOut,
@@ -417,6 +420,7 @@ class Cube(Object):
             return np.array([0, 0, -1])
         else:
             print("Error: Invalid case, no hit normal for this surface ", surface)
+
 
 # singleton class that stores all the objects
 class ObjectList:

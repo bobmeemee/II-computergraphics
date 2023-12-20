@@ -137,7 +137,6 @@ class Sphere(Object):
     def rotate(self, angle, ux, uy, uz):
         pass
 
-
     # returns the intersection point and the color of the object
     def hit(self, line: Line):
         # transform the line
@@ -181,11 +180,14 @@ class Sphere(Object):
                                                   1]))
                                                   """
 
-            info = HitInfo(isEntering=False, obj=self, surface=0, time=t1, intersectionPoint=intersectionPoint2,
+            info = HitInfo(isEntering=False, obj=self, surface=0, time=t2, intersectionPoint=intersectionPoint2,
                            normal=normal)
+
             inter.hit.append(info)
+
         if inter.numberOfHits == 0:
             return False, None
+
         return True, inter
 
     def getNormal(self, point: Line.Point):
@@ -388,7 +390,7 @@ class Cube(Object):
         if tOut > 0.00001:
             inter.numberOfHits += 1
             hitNormal = utils.vectorFromArray(self.getCubeNormal(outSurface))
-            #hitNormal *= -1
+            # hitNormal *= -1
             hitNormal.transform(self.transform)
 
             inter.hit.append(HitInfo(isEntering=False, obj=self, surface=outSurface, time=tOut,
@@ -420,6 +422,180 @@ class Cube(Object):
             return np.array([0, 0, -1])
         else:
             print("Error: Invalid case, no hit normal for this surface ", surface)
+
+
+class BooleanObject(Object):
+
+    def __init__(self):
+        self.transform = np.identity(4)
+        self.inverseTransform = np.identity(4)
+        self.material = Material()
+        self.priority = 0
+
+        self.left = None
+        self.right = None
+
+    def setLeft(self, left):
+        self.left = left
+
+    def setRight(self, right):
+        self.right = right
+
+    @abstractmethod
+    def hit(self, line: Line):
+        pass
+
+
+class UnionBool(BooleanObject):
+    def __init__(self):
+        super().__init__()
+
+    def hit(self, line: Line):
+        isHitLeft, interLeft = self.left.hit(line)
+        isHitRight, interRight = self.right.hit(line)
+
+        if not isHitLeft and not isHitRight:
+            return False, None
+
+        # get the t list of the combined object
+        interCombined = interLeft.hit + interRight.hit
+        # sort the t list of the combined object
+        tCombined = sorted(interCombined, key=lambda x: x.time)
+        # create a new intersection object
+        inter = Intersection()
+
+        leftInside = False
+        rightInside = False
+        combInside = False
+
+        # loop through the t list of the combined object and add the hits to the intersection object
+        for hit in tCombined:
+            if hit in interLeft.hit:
+                if hit.isEntering:
+                    leftInside = True
+                else:
+                    leftInside = False
+            if hit in interRight.hit:
+                if hit.isEntering:
+                    rightInside = True
+                else:
+                    rightInside = False
+
+            if leftInside or rightInside:
+                combInside = True
+
+            if combInside:
+                inter.numberOfHits += 1
+                inter.hit.append(hit)
+                if hit.isEntering:
+                    combInside = True
+                else:
+                    combInside = False
+
+        if inter.numberOfHits == 0:
+            return False, None
+
+        return True, inter
+
+
+class IntersectionBool(BooleanObject):
+    def __init__(self):
+        super().__init__()
+
+    def hit(self, line: Line):
+        isHitLeft, interLeft = self.left.hit(line)
+        isHitRight, interRight = self.right.hit(line)
+
+        if not isHitLeft or not isHitRight:
+            return False, None
+
+        breakpoint()
+
+        lftInside = False
+        rgtInside = False
+        combInside = False
+
+        # get the t list of the combined object
+        interCombined = interLeft.hit + interRight.hit
+        # sort the t list of the combined object
+        tCombined = sorted(interCombined, key=lambda x: x.time)
+        # create a new intersection object
+        inter = Intersection()
+        # loop through the t list of the combined object and add the hits to the intersection object
+        for hit in tCombined:
+            if hit in interLeft.hit:
+                if hit.isEntering:
+                    lftInside = True
+                else:
+                    lftInside = False
+            if hit in interRight.hit:
+                if hit.isEntering:
+                    rgtInside = True
+                else:
+                    rgtInside = False
+
+            if lftInside and rgtInside:
+                combInside = True
+
+            if combInside:
+                inter.numberOfHits += 1
+                inter.hit.append(hit)
+
+        if inter.numberOfHits == 0:
+            return False, None
+
+        return True, inter
+
+
+class DifferenceBool(BooleanObject):
+    def __init__(self):
+        super().__init__()
+
+    def hit(self, line: Line):
+        isHitLeft, interLeft = self.left.hit(line)
+        isHitRight, interRight = self.right.hit(line)
+
+        if not isHitLeft:
+            return False, None
+
+        lftInside = False
+        rgtInside = False
+        combInside = False
+
+        # get the t list of the combined object
+        interCombined = interLeft.hit + interRight.hit
+        # sort the t list of the combined object
+        tCombined = sorted(interCombined, key=lambda x: x.time)
+        # create a new intersection object
+        inter = Intersection()
+        # loop through the t list of the combined object and add the hits to the intersection object
+        for hit in tCombined:
+            if hit in interLeft.hit:
+                if hit.isEntering:
+                    lftInside = True
+                else:
+                    lftInside = False
+            if hit in interRight.hit:
+                if hit.isEntering:
+                    rgtInside = True
+                else:
+                    rgtInside = False
+
+            if lftInside and not rgtInside:
+                combInside = True
+
+            if combInside:
+                inter.numberOfHits += 1
+                inter.hit.append(hit)
+                if hit.isEntering:
+                    combInside = True
+                else:
+                    combInside = False
+
+        if inter.numberOfHits == 0:
+            return False, None
+
+        return True, inter
 
 
 # singleton class that stores all the objects

@@ -4,7 +4,7 @@ import sys
 
 from Camera import Camera
 from Line import Point, Vector
-from Objects import ObjectList, Sphere, Cube, GenericSquare, LightList, Light
+from Objects import ObjectList, Sphere, Cube, GenericSquare, LightList, Light, IntersectionBool
 
 # Initialize Pygame
 pygame.init()
@@ -33,9 +33,11 @@ image = None
 
 
 def main():
-    #test_transparency()
-    #test_reflection()
-    test_reflection_inCube()
+    # test_transparency()
+    # test_reflection()
+    # test_reflection_inCube()
+    # half_circle()
+    lens()
     update_color = None
     update_rect = None
     render_progress = 0
@@ -177,7 +179,7 @@ def test_transparency():
     light_1 = Light(Point(0, 0, 4), np.array([100, 100, 100]))
     lightList.addLight(light_1)
     light_2 = Light(Point(2, 2, -3), np.array([255, 255, 255]))
-    #lightList.addLight(light_2)
+    # lightList.addLight(light_2)
 
     # Create a sphere
     sphere = Sphere()
@@ -220,6 +222,111 @@ def test_transparency():
     # Add the objects to the list of objects
     obj_list.addObject(sphere)
     obj_list.addObject(cube)
+
+    # TODO: check inside and outside state of ray
+
+
+def lens():
+    # Create lights
+    light_1 = Light(Point(0, 0, 4), np.array([100, 100, 100]) * 2)
+    lightList.addLight(light_1)
+    light_2 = Light(Point(2, 2, -3), np.array([255, 255, 255]))
+    # lightList.addLight(light_2)
+
+    # Create a sphere
+    sphere1 = Sphere()
+    sphere1.scale(0.5, 0.5, 0.5)
+    sphere1.translate(0, -1, -3)
+
+    sphere1.material.emissive = np.array([100., 100, 100]) * 0
+    sphere1.material.eta = np.array([.800, .876, .989])  # BGR
+    sphere1.material.ka = 0.1  # ambient
+    sphere1.material.kd = 0.2  # diffuse
+    sphere1.material.ks = 0.1  # specular
+    sphere1.material.m = 0.1  # roughness
+
+    sphere1.material.shininess = 0.01  # reflection
+
+    sphere1.material.transparency = 0  # refraction
+    sphere1.material.relativeLightspeed = .9
+    sphere1.priority = 1
+
+    sphere2 = Sphere()
+    sphere2.scale(0.5, 0.5, 0.5)
+    sphere2.translate(0, 1, -3)
+
+    sphere2.material.emissive = np.array([100., 100, 100]) * 0
+    sphere2.material.eta = np.array([.800, .2, .989])  # BGR
+    sphere2.material.ka = 0.1  # ambient
+    sphere2.material.kd = 0.2  # diffuse
+    sphere2.material.ks = 0.1  # specular
+    sphere2.material.m = 0.1  # roughness
+
+    sphere2.material.shininess = 0.01  # reflection
+
+    sphere2.material.transparency = 0  # refraction
+    sphere2.material.relativeLightspeed = .9
+    sphere2.priority = 1
+
+    lens = IntersectionBool()
+    lens.setLeft(sphere1)
+    lens.setRight(sphere2)
+
+    # Add the objects to the list of objects
+    obj_list.addObject(lens)
+
+
+
+def half_circle():
+    # Create lights
+    light_1 = Light(Point(0, 0, 4), np.array([100, 100, 100]) * 2)
+    lightList.addLight(light_1)
+    light_2 = Light(Point(2, 2, -3), np.array([255, 255, 255]))
+    # lightList.addLight(light_2)
+
+    # Create a sphere
+    sphere = Sphere()
+    sphere.scale(0.5, 0.5, 0.5)
+    sphere.translate(0, 0, -3)
+
+    sphere.material.emissive = np.array([100., 100, 100]) * 0
+    sphere.material.eta = np.array([.800, .876, .989])  # BGR
+    sphere.material.ka = 0.1  # ambient
+    sphere.material.kd = 0.2  # diffuse
+    sphere.material.ks = 0.1  # specular
+    sphere.material.m = 0.1  # roughness
+
+    sphere.material.shininess = 0.01  # reflection
+
+    sphere.material.transparency = 0  # refraction
+    sphere.material.relativeLightspeed = .9
+    sphere.priority = 1
+
+    # create a transparent square
+    cube = Cube()
+    cube.scale(1, 1, 1)
+    cube.rotate(20, 1, 0, 0)
+    cube.translate(0, -1, -3)
+    cube.priority = 0
+
+    cube.material.emissive = np.array([100., 100, 100]) * 0
+    cube.material.eta = np.array([.6, .5, .3])  # BGR
+    cube.material.ka = 0.2  # ambient
+    cube.material.kd = 0.2  # diffuse
+    cube.material.ks = 0.4  # specular
+    cube.material.m = 0.01  # roughness CANT BE 0
+
+    cube.material.shininess = 0.01  # reflection
+
+    cube.material.transparency = 0  # refraction
+    cube.material.relativeLightspeed = 1
+
+    halfCircle = IntersectionBool()
+    halfCircle.setLeft(sphere)
+    halfCircle.setRight(cube)
+
+    # Add the objects to the list of objects
+    obj_list.addObject(halfCircle)
 
 
 if __name__ == "__main__":

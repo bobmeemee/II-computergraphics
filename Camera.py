@@ -1,15 +1,5 @@
 import numpy as np
-import sys as sys
-import ctypes
-
-from Objects import ObjectList, Intersection, GenericSquare, Sphere, Cube, Object, LightList, isInShadow
-
-'''
-from Objects import Intersection, ObjectList
-from pyopengl.OpenGL.raw.GLUT import *
-from pyopengl.OpenGL.GLUT.special import glutInit
-from pyopengl.OpenGL.raw.GL.VERSION.GL_1_0 import *
-'''
+from Objects import ObjectList, Intersection, LightList, isInShadow
 import utils
 from Line import Point, Vector, Line
 
@@ -189,8 +179,8 @@ class Camera:
             feeler.setDirection(light.point.x - hitPoint.x, light.point.y - hitPoint.y, light.point.z - hitPoint.z)
             feeler.vector.normalize()
             # TODO: if blocking objects are transparent, don't skip it
-            #if isInShadow(feeler):
-            #    continue
+            if isInShadow(feeler):
+                continue
 
             s = light.point - hitPoint  # vector to light source
             s.normalize()
@@ -295,7 +285,8 @@ class Camera:
                 color[i] = 255
         return color
 
-    def getFistHit(self, ray: Line):
+    @staticmethod
+    def getFistHit(ray: Line):
         """Get the first hit"""
 
         bestIntersection = Intersection()
